@@ -300,11 +300,18 @@ module.exports = ({ strapi }) => ({
       const { fileInfo } = data;
       fileData = await this.enhanceAndValidateFile(file, fileInfo);
 
-      // keep a constant hash and extension so the file url doesn't change when the file is replaced
-      _.assign(fileData, {
-        hash: dbFile.hash,
-        ext: dbFile.ext,
-      });
+      if(config.rewriteHash) {
+        _.assign(fileData, {
+          hash: generateFileName(file.name),
+          ext: path.extname(file.name),
+        });
+      } else {
+        // keep a constant hash and extension so the file url doesn't change when the file is replaced
+        _.assign(fileData, {
+          hash: dbFile.hash,
+          ext: dbFile.ext,
+        });
+      }
 
       // execute delete function of the provider
       if (dbFile.provider === config.provider) {
